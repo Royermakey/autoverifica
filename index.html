@@ -1,0 +1,870 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050816">
+<meta name="description" content="AutoVerifica: demostración de una plataforma para organizar verificaciones vehiculares antes de comprar en Perú.">
+<title>AutoVerifica | Inteligencia Vehicular</title>
+
+<style>
+:root {
+  --fondo:#050816;
+  --panel:#0b1428;
+  --azul:#168cff;
+  --celeste:#31e7ff;
+  --verde:#42ffb0;
+  --texto:#f3f7ff;
+  --gris:#9aacc7;
+  --borde:rgba(49,231,255,.22);
+  --amarillo:#ffcf76;
+}
+* {box-sizing:border-box;margin:0;padding:0}
+html {scroll-behavior:smooth}
+body {
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--texto);
+  background:
+    radial-gradient(ellipse at 80% 0%,#10294c 0%,transparent 40%),
+    radial-gradient(ellipse at 0% 40%,#101a38 0%,transparent 35%),
+    var(--fondo);
+  min-height:100vh;
+  line-height:1.6;
+}
+button,input {font:inherit}
+button {cursor:pointer}
+button:focus-visible,input:focus-visible {
+  outline:2px solid var(--celeste);
+  outline-offset:3px;
+}
+.contenedor {width:min(1150px,92%);margin:auto}
+
+header {
+  border-bottom:1px solid var(--borde);
+  background:rgba(5,8,22,.92);
+}
+.barra {
+  min-height:76px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+.logo {font-size:25px;font-weight:900;letter-spacing:-1px}
+.logo span {color:var(--celeste)}
+.estado {
+  color:var(--verde);
+  border:1px solid rgba(66,255,176,.3);
+  border-radius:30px;
+  padding:6px 12px;
+  font-size:10px;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+.hero {
+  padding:65px 0 35px;
+  display:grid;
+  grid-template-columns:.85fr 1.15fr;
+  gap:24px;
+  align-items:center;
+}
+.etiqueta {
+  display:inline-block;
+  color:var(--celeste);
+  border:1px solid var(--borde);
+  background:rgba(49,231,255,.06);
+  border-radius:5px;
+  padding:7px 12px;
+  font-size:10px;
+  font-weight:bold;
+  letter-spacing:2px;
+  margin-bottom:18px;
+}
+h1 {
+  font-size:clamp(38px,5vw,65px);
+  line-height:1.03;
+  letter-spacing:-2px;
+  margin-bottom:20px;
+}
+h1 span {
+  color:var(--celeste);
+  text-shadow:0 0 25px rgba(49,231,255,.25);
+}
+.hero-texto p {
+  color:var(--gris);
+  font-size:15px;
+  margin-bottom:23px;
+  max-width:430px;
+}
+.boton {
+  background:linear-gradient(100deg,#168cff,#31e7ff);
+  color:#04101d;
+  border:0;
+  border-radius:9px;
+  padding:14px 21px;
+  font-weight:900;
+  transition:.2s;
+}
+.boton:hover {
+  transform:translateY(-2px);
+  box-shadow:0 0 25px rgba(49,231,255,.25);
+}
+
+/* Escenario futurista */
+.garaje {
+  position:relative;
+  overflow:hidden;
+  min-width:0;
+  min-height:315px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border:1px solid var(--borde);
+  border-radius:20px;
+  background:
+    radial-gradient(ellipse at 50% 80%,rgba(22,140,255,.13),transparent 65%),
+    linear-gradient(145deg,#0c1930,#070d1c);
+  box-shadow:0 0 40px rgba(22,140,255,.08);
+}
+.garaje::before,.garaje::after {
+  content:"";
+  position:absolute;
+  border:1px solid rgba(49,231,255,.10);
+  border-radius:50%;
+  width:260px;height:260px;
+  pointer-events:none;
+}
+.garaje::after {width:350px;height:350px}
+.lineas-fondo {
+  position:absolute;
+  inset:0;
+  opacity:.22;
+  background-image:
+    linear-gradient(rgba(49,231,255,.09) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(49,231,255,.09) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+.vehiculos {
+  width:100%;
+  max-width:760px;
+  height:auto;
+  position:relative;
+  z-index:1;
+  overflow:visible;
+  filter:drop-shadow(0 0 5px rgba(49,231,255,.25));
+}
+.rotulo {
+  position:absolute;
+  z-index:2;
+  bottom:12px;
+  font-size:9px;
+  letter-spacing:2px;
+  color:#7898ba;
+  font-weight:bold;
+}
+.rotulo-izq {left:12px}
+.rotulo-der {right:12px}
+
+.buscar-panel {
+  background:linear-gradient(145deg,#101e36,#080f20);
+  border:1px solid var(--borde);
+  border-radius:17px;
+  padding:27px;
+  margin:18px auto 45px;
+  box-shadow:0 15px 45px rgba(0,0,0,.2);
+}
+.buscar-panel h2 {font-size:24px;margin-bottom:4px}
+.subtitulo {color:var(--gris);font-size:14px;margin-bottom:20px}
+.formulario {display:flex;gap:12px}
+.formulario input {
+  flex:1;
+  min-width:0;
+  background:#050b18;
+  color:white;
+  border:1px solid #263c5c;
+  border-radius:9px;
+  padding:16px;
+  outline:none;
+  font-size:18px;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:2px;
+}
+.formulario input:focus {
+  border-color:var(--celeste);
+  box-shadow:0 0 0 3px rgba(49,231,255,.09);
+}
+.mensaje {color:var(--gris);font-size:12px;margin-top:12px}
+
+.funciones {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-bottom:55px;
+}
+.funcion {
+  background:rgba(13,24,46,.85);
+  border:1px solid var(--borde);
+  border-radius:14px;
+  padding:22px;
+}
+.funcion .icono {font-size:27px;margin-bottom:10px}
+.funcion h3 {font-size:17px;margin-bottom:7px}
+.funcion p {color:var(--gris);font-size:13px}
+
+#resultado {
+  display:none;
+  margin-bottom:55px;
+  scroll-margin-top:20px;
+}
+.resultado-cabecera {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:15px;
+  margin-bottom:22px;
+}
+.resultado-cabecera h2 {font-size:27px}
+.placa {
+  background:#eaf3ff;
+  color:#101827;
+  padding:7px 17px;
+  border:3px solid #94b8e7;
+  border-radius:7px;
+  font-size:23px;
+  font-weight:900;
+  letter-spacing:3px;
+  overflow-wrap:anywhere;
+}
+.aviso {
+  background:rgba(255,190,74,.08);
+  border:1px solid rgba(255,190,74,.35);
+  color:#ffdc98;
+  border-radius:10px;
+  padding:14px 16px;
+  font-size:13px;
+  margin-bottom:20px;
+}
+.estado-reporte {
+  display:inline-block;
+  margin-top:10px;
+  padding:7px 12px;
+  border:1px solid rgba(255,190,74,.4);
+  border-radius:7px;
+  background:rgba(255,190,74,.08);
+  color:#ffdc98;
+  font-size:11px;
+  font-weight:bold;
+  letter-spacing:.5px;
+}
+.rejilla {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.tarjeta {
+  background:linear-gradient(145deg,#101e36,#0a1121);
+  border:1px solid var(--borde);
+  border-radius:14px;
+  padding:22px;
+  min-width:0;
+}
+.tarjeta h3 {font-size:16px;margin-bottom:14px}
+.dato {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:11px 0;
+  border-bottom:1px solid rgba(148,168,200,.12);
+  font-size:13px;
+}
+.dato:last-child {border-bottom:none}
+.dato span:first-child {color:var(--gris)}
+.dato strong {
+  text-align:right;
+  overflow-wrap:anywhere;
+}
+.pendiente {color:var(--amarillo);text-align:right}
+.acciones {display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.boton-secundario {
+  background:transparent;
+  color:var(--celeste);
+  border:1px solid var(--borde);
+  border-radius:8px;
+  padding:12px 17px;
+  font-weight:bold;
+}
+.boton-secundario:hover {
+  background:rgba(49,231,255,.08);
+}
+.recomendacion {
+  margin-top:18px;
+  padding:20px;
+  background:linear-gradient(145deg,#10213a,#091323);
+  border:1px solid rgba(66,255,176,.25);
+  border-radius:14px;
+}
+.recomendacion h3 {
+  margin-bottom:10px;
+  color:var(--verde);
+}
+.recomendacion p {
+  color:var(--gris);
+  font-size:13px;
+  margin-bottom:12px;
+}
+.lista-recomendaciones {
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.lista-recomendaciones li {
+  padding:11px;
+  background:rgba(5,8,22,.6);
+  border:1px solid rgba(148,168,200,.14);
+  border-radius:8px;
+  font-size:13px;
+}
+.lista-recomendaciones li span {
+  color:var(--celeste);
+  font-weight:bold;
+  margin-right:5px;
+}
+
+footer {
+  border-top:1px solid var(--borde);
+  padding:25px 0;
+  color:var(--gris);
+  font-size:12px;
+  text-align:center;
+}
+.pie-nota {margin-top:7px;color:#7184a3}
+
+@media(max-width:800px) {
+  .hero {grid-template-columns:1fr;padding-top:42px}
+  .garaje {min-height:260px}
+  .vehiculos {width:108%;max-width:760px}
+  .funciones,.rejilla {grid-template-columns:1fr}
+  .formulario {flex-direction:column}
+  .formulario .boton {width:100%}
+  .barra {min-height:68px}
+  .estado {font-size:8px;letter-spacing:0}
+  .buscar-panel {padding:20px}
+  .logo {font-size:21px}
+}
+@media(max-width:600px) {
+  .lista-recomendaciones {grid-template-columns:1fr}
+  .dato {gap:8px}
+}
+@media(max-width:420px) {
+  .garaje {min-height:210px}
+  .vehiculos {width:120%;max-width:none}
+  .rotulo {font-size:7px;letter-spacing:1px}
+  .placa {font-size:19px}
+  .tarjeta {padding:17px}
+}
+@media print {
+  body {background:white;color:#111}
+  header,.hero,.buscar-panel,.funciones,footer,.acciones {
+    display:none!important;
+  }
+  .contenedor {width:100%}
+  #resultado {display:block!important}
+  .resultado-cabecera h2,
+  .tarjeta h3,
+  .recomendacion h3 {color:#111}
+  .tarjeta,.recomendacion {
+    background:white;
+    border:1px solid #ccc;
+    break-inside:avoid;
+  }
+  .dato span:first-child,.recomendacion p {color:#444}
+  .aviso {
+    color:#604000;
+    background:white;
+    border:1px solid #aaa;
+  }
+  .estado-reporte {
+    color:#604000;
+    background:white;
+    border:1px solid #aaa;
+  }
+  .lista-recomendaciones li {
+    background:white;
+    border:1px solid #ccc;
+  }
+  .lista-recomendaciones li span {color:#111}
+  .pendiente {color:#654b00}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="contenedor barra">
+    <div class="logo">AUTO<span>VERIFICA</span></div>
+    <div class="estado">● SISTEMA DEMOSTRATIVO</div>
+  </div>
+</header>
+
+<main class="contenedor">
+
+<section class="hero">
+  <div class="hero-texto">
+    <div class="etiqueta">TECNOLOGÍA VEHICULAR · PERÚ</div>
+    <h1>Antes de comprar,<br><span>verifica.</span></h1>
+    <p>
+      Revisa la información que necesitas comprobar antes
+      de comprar una camioneta, una moto o cualquier vehículo.
+      Toma decisiones con mayor seguridad.
+    </p>
+    <button class="boton" type="button" onclick="irABusqueda()">
+      CONSULTAR PLACA ↗
+    </button>
+  </div>
+
+  <div class="garaje">
+    <div class="lineas-fondo"></div>
+
+    <!-- PICKUP 4X4 Y MOTO DEPORTIVA CON CONTORNOS DE NEÓN -->
+    <svg class="vehiculos" viewBox="0 0 760 360"
+         xmlns="http://www.w3.org/2000/svg"
+         role="img"
+         aria-label="Camioneta pickup 4x4 de doble cabina y moto deportiva futurista">
+
+      <defs>
+        <linearGradient id="neon4x4" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#31e7ff"/>
+          <stop offset="55%" stop-color="#168cff"/>
+          <stop offset="100%" stop-color="#42ffb0"/>
+        </linearGradient>
+        <filter id="glow4x4" x="-25%" y="-25%" width="150%" height="150%">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <g fill="none" stroke="url(#neon4x4)"
+         stroke-width="2.1" stroke-linecap="round"
+         stroke-linejoin="round" filter="url(#glow4x4)">
+
+        <!-- TOLVA TRASERA -->
+        <path d="M25 177 L37 150 L93 150 L111 168
+                 L111 220 L32 220 L25 204 Z"/>
+        <path d="M39 158 L85 158 L99 173
+                 L99 211 L39 211 Z"/>
+        <path d="M43 166 L88 166 M43 174 L88 174
+                 M40 183 L91 183 M40 193 L91 193
+                 M40 203 L91 203"/>
+
+        <!-- CABINA DOBLE -->
+        <path d="M107 170 L127 113 Q132 102 148 99
+                 L235 99 Q252 100 263 117 L292 162"/>
+        <path d="M145 108 L177 108 L177 158 L122 158 Z"/>
+        <path d="M187 108 L232 108 Q244 110 253 126
+                 L272 158 L187 158 Z"/>
+        <path d="M181 105 L181 177 M235 111 L248 160"/>
+        <path d="M125 165 L176 165 M190 165 L244 165"/>
+        <path d="M143 173 L159 173 M207 173 L223 173"/>
+
+        <!-- CAPÓ ALTO -->
+        <path d="M263 162 L294 159 L335 172
+                 L365 194 L367 220 L346 232 L270 232"/>
+        <path d="M269 171 L299 170 L340 187"/>
+        <path d="M288 179 L327 188 L349 201"/>
+
+        <!-- FRENTE ROBUSTO -->
+        <path d="M335 172 L354 177 L374 195
+                 L379 219 L363 233 L344 232"/>
+        <path d="M347 181 L366 195 L370 217 L359 224"/>
+
+        <!-- PARRILLA -->
+        <path d="M352 189 L366 197 L369 216 L358 222"/>
+        <path d="M355 194 L366 200 M355 200 L368 206
+                 M356 207 L368 212 M357 214 L366 218"/>
+
+        <!-- FAROS -->
+        <path d="M324 174 L345 179 L350 187 L329 183"/>
+        <path d="M328 178 L344 182 M357 181 L366 185"/>
+
+        <!-- DEFENSA -->
+        <path d="M344 232 L366 233 L380 224
+                 L379 239 L366 247 L343 245"/>
+        <path d="M351 240 L368 240 M358 246 L365 246"/>
+
+        <!-- GUARDABARROS -->
+        <path d="M24 233 Q25 194 65 194 Q105 194 108 233"/>
+        <path d="M34 233 Q37 204 65 204 Q94 204 98 233"/>
+        <path d="M260 233 Q261 190 300 190 Q339 190 341 233"/>
+        <path d="M270 233 Q273 201 300 201 Q327 201 330 233"/>
+
+        <!-- RUEDA TRASERA -->
+        <circle cx="66" cy="237" r="31"/>
+        <circle cx="66" cy="237" r="22"/>
+        <circle cx="66" cy="237" r="10"/>
+        <circle cx="66" cy="237" r="3"/>
+        <path d="M66 207 L66 227 M66 247 L66 267
+                 M36 237 L56 237 M76 237 L96 237
+                 M45 216 L60 231 M72 243 L87 258
+                 M87 216 L72 231 M60 243 L45 258"/>
+
+        <!-- RUEDA DELANTERA -->
+        <circle cx="300" cy="237" r="31"/>
+        <circle cx="300" cy="237" r="22"/>
+        <circle cx="300" cy="237" r="10"/>
+        <circle cx="300" cy="237" r="3"/>
+        <path d="M300 207 L300 227 M300 247 L300 267
+                 M270 237 L290 237 M310 237 L330 237
+                 M279 216 L294 231 M306 243 L321 258
+                 M321 216 L306 231 M294 243 L279 258"/>
+
+        <!-- CHASIS Y ESTRIBOS -->
+        <path d="M103 241 L126 250 L241 250 L270 241"/>
+        <path d="M119 250 L119 260 L241 260 L241 250"/>
+        <path d="M130 262 L151 262 M208 262 L231 262"/>
+        <path d="M43 274 L65 280 L89 274
+                 M276 274 L300 280 L323 274"/>
+        <path d="M116 185 L130 185 M192 185 L208 185"/>
+        <path d="M151 92 L158 83 L222 83 L236 92"/>
+        <path d="M270 162 L286 162"/>
+
+        <!-- MOTO DEPORTIVA -->
+        <circle cx="451" cy="246" r="26"/>
+        <circle cx="451" cy="246" r="19"/>
+        <circle cx="451" cy="246" r="4"/>
+        <path d="M451 227 L451 242 M451 250 L451 265
+                 M432 246 L447 246 M455 246 L470 246
+                 M438 233 L448 243 M454 249 L464 259
+                 M464 233 L454 243 M448 249 L438 259"/>
+
+        <circle cx="612" cy="246" r="26"/>
+        <circle cx="612" cy="246" r="19"/>
+        <circle cx="612" cy="246" r="4"/>
+        <path d="M612 227 L612 242 M612 250 L612 265
+                 M593 246 L608 246 M616 246 L631 246
+                 M599 233 L609 243 M615 249 L625 259
+                 M625 233 L615 243 M609 249 L599 259"/>
+
+        <!-- CHASIS DE LA MOTO -->
+        <path d="M451 246 L481 193 L522 224 L612 246"/>
+        <path d="M481 193 L497 235 L548 235"/>
+        <path d="M481 193 L469 178 L490 173"/>
+
+        <!-- CARENADO ANGULAR -->
+        <path d="M473 189 L486 157 Q498 142 520 147
+                 L549 159 L577 185 L562 207 L527 213
+                 L505 228 L480 216 L464 202 Z"/>
+        <path d="M490 162 L516 156 L541 171"/>
+        <path d="M486 176 L511 190 L542 187"/>
+        <path d="M501 202 L529 203 L553 192"/>
+        <path d="M527 213 L548 222 L577 216"/>
+
+        <!-- COLÍN Y ASIENTO -->
+        <path d="M473 189 L452 176 L440 181
+                 L447 195 L464 202"/>
+        <path d="M453 179 L468 184"/>
+        <path d="M476 170 L492 163"/>
+        <path d="M498 147 L495 138 L512 137"/>
+
+        <!-- MANILLAR Y HORQUILLA -->
+        <path d="M549 160 L568 140 L588 141"/>
+        <path d="M568 140 L581 149"/>
+        <path d="M555 163 L573 194"/>
+        <path d="M573 194 L612 246"/>
+        <path d="M583 189 L604 224"/>
+
+        <!-- FARO DE LA MOTO -->
+        <path d="M557 163 L571 154 L582 162 L570 174"/>
+        <path d="M562 163 L574 160 M571 154 L570 147"/>
+        <path d="M480 216 L473 231 M516 224 L506 236"/>
+
+        <!-- LÍNEAS DE VELOCIDAD -->
+        <path d="M391 180 L418 180
+                 M396 193 L423 193
+                 M400 206 L420 206"/>
+      </g>
+
+      <g fill="#31e7ff">
+        <circle cx="345" cy="181" r="2.5"/>
+        <circle cx="366" cy="197" r="2"/>
+        <circle cx="571" cy="162" r="2.5"/>
+      </g>
+
+      <g fill="#31e7ff" font-family="Arial,sans-serif"
+         font-size="11" font-weight="bold" letter-spacing="2">
+        <text x="92" y="310">PICKUP 4X4</text>
+        <text x="493" y="310">SPORTBIKE</text>
+      </g>
+    </svg>
+
+    <div class="rotulo rotulo-izq">4X4 · OFF-ROAD</div>
+    <div class="rotulo rotulo-der">SPORT · PERFORMANCE</div>
+  </div>
+</section>
+
+<section class="buscar-panel" id="buscador">
+  <h2>Consulta vehicular</h2>
+  <p class="subtitulo">
+    Ingresa la placa del vehículo que deseas revisar.
+  </p>
+
+  <form class="formulario" id="formulario">
+    <input
+      type="text"
+      id="placaInput"
+      placeholder="Ej. AXX675"
+      maxlength="10"
+      autocomplete="off"
+      aria-label="Placa del vehículo"
+      required
+    >
+    <button class="boton" type="submit">VER REPORTE →</button>
+  </form>
+
+  <p class="mensaje">
+    DEMO: este buscador todavía no está conectado a registros oficiales.
+  </p>
+</section>
+
+<section class="funciones">
+  <article class="funcion">
+    <div class="icono">◈</div>
+    <h3>Datos del vehículo</h3>
+    <p>Organiza los datos que debes comprobar antes de comprar un vehículo.</p>
+  </article>
+  <article class="funcion">
+    <div class="icono">⌕</div>
+    <h3>Antecedentes</h3>
+    <p>Recuerda verificar posibles robos reportados, multas y otros antecedentes.</p>
+  </article>
+  <article class="funcion">
+    <div class="icono">⬡</div>
+    <h3>Compra informada</h3>
+    <p>Utiliza una lista de revisión para reducir los riesgos antes de pagar.</p>
+  </article>
+</section>
+
+<!-- REPORTE DE LA CONSULTA -->
+<section id="resultado" aria-live="polite">
+  <div class="resultado-cabecera">
+    <div>
+      <div class="etiqueta">REPORTE DE CONSULTA</div>
+      <h2>Ficha del vehículo</h2>
+      <div class="estado-reporte" id="estadoConsulta">
+        DEMOSTRACIÓN · SIN VERIFICAR
+      </div>
+    </div>
+    <div class="placa" id="placaResultado">—</div>
+  </div>
+
+  <div class="aviso">
+    <strong>⚠ DATOS DE DEMOSTRACIÓN.</strong>
+    AutoVerifica todavía no consulta registros oficiales.
+    Los campos pendientes no significan que el vehículo esté
+    libre de multas, robos, deudas o problemas legales.
+    Verifica la información antes de pagar.
+  </div>
+
+  <div class="rejilla">
+
+    <article class="tarjeta">
+      <h3>▣ Información general</h3>
+      <div class="dato">
+        <span>Placa consultada</span>
+        <strong id="datoPlaca">—</strong>
+      </div>
+      <div class="dato">
+        <span>Marca</span>
+        <strong class="pendiente">Por verificar</strong>
+      </div>
+      <div class="dato">
+        <span>Modelo</span>
+        <strong class="pendiente">Por verificar</strong>
+      </div>
+      <div class="dato">
+        <span>Año de fabricación</span>
+        <strong class="pendiente">Por verificar</strong>
+      </div>
+      <div class="dato">
+        <span>Color</span>
+        <strong class="pendiente">Por verificar</strong>
+      </div>
+      <div class="dato">
+        <span>Número VIN</span>
+        <strong class="pendiente">Por verificar</strong>
+      </div>
+    </article>
+
+    <article class="tarjeta">
+      <h3>◉ Estado documental</h3>
+      <div class="dato">
+        <span>Estado de consulta</span>
+        <strong class="pendiente">Demo</strong>
+      </div>
+      <div class="dato">
+        <span>Propietario registrado</span>
+        <strong class="pendiente">Sin consultar</strong>
+      </div>
+      <div class="dato">
+        <span>Transferencias</span>
+        <strong class="pendiente">Sin consultar</strong>
+      </div>
+      <div class="dato">
+        <span>Inspección técnica</span>
+        <strong class="pendiente">Sin consultar</strong>
+      </div>
+      <div class="dato">
+        <span>Gravámenes y cargas</span>
+        <strong class="pendiente">Sin consultar</strong>
+      </div>
+    </article>
+
+    <article class="tarjeta">
+      <h3>⌕ Multas y alertas</h3>
+      <div class="dato">
+        <span>Reporte de robo</span>
+        <strong class="pendiente">Sin consultar</strong>
+      </div>
+      <div class="dato">
+        <span>Multas o papeletas</span>
+        <strong class="pendiente">Sin consultar</strong>
+      </div>
+      <div class="dato">
+        <span>Accidentes o daños</span>
+        <strong class="pendiente">Sin consultar</strong>
+      </div>
+      <div class="dato">
+        <span>Otras alertas</span>
+        <strong class="pendiente">Sin consultar</strong>
+      </div>
+      <p class="mensaje">
+        Estos estados no confirman que existan ni que no existan
+        antecedentes. La información requiere una fuente autorizada.
+      </p>
+    </article>
+
+    <article class="tarjeta">
+      <h3>✓ Lista de comprobación</h3>
+      <div class="dato">
+        <span>Comparar placa y VIN</span>
+        <strong class="pendiente">Pendiente</strong>
+      </div>
+      <div class="dato">
+        <span>Revisar documentos</span>
+        <strong class="pendiente">Pendiente</strong>
+      </div>
+      <div class="dato">
+        <span>Inspección mecánica</span>
+        <strong class="pendiente">Pendiente</strong>
+      </div>
+      <div class="dato">
+        <span>Identidad del vendedor</span>
+        <strong class="pendiente">Pendiente</strong>
+      </div>
+    </article>
+
+  </div>
+
+  <article class="recomendacion">
+    <h3>✦ Recomendación antes de comprar</h3>
+    <p>
+      No entregues dinero ni firmes un acuerdo hasta revisar
+      la documentación y comprobar la identidad del vendedor.
+    </p>
+    <ul class="lista-recomendaciones">
+      <li><span>01.</span> Comprueba que la placa coincida con los documentos.</li>
+      <li><span>02.</span> Solicita la revisión de antecedentes en fuentes oficiales.</li>
+      <li><span>03.</span> Pide una inspección mecánica independiente.</li>
+      <li><span>04.</span> Verifica que quien vende pueda realizar legalmente la transferencia.</li>
+    </ul>
+  </article>
+
+  <div class="acciones">
+    <button class="boton" type="button" onclick="window.print()">
+      IMPRIMIR / GUARDAR PDF
+    </button>
+    <button class="boton-secundario" type="button" onclick="nuevaConsulta()">
+      NUEVA CONSULTA
+    </button>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="contenedor">
+    <strong>AUTOVERIFICA</strong> · Proyecto demostrativo de consulta vehicular
+    <div class="pie-nota">
+      No es un servicio oficial ni sustituye la verificación documental
+      en las entidades correspondientes.
+    </div>
+  </div>
+</footer>
+
+<script>
+const formulario = document.getElementById("formulario");
+const placaInput = document.getElementById("placaInput");
+const resultado = document.getElementById("resultado");
+
+function irABusqueda() {
+  document.getElementById("buscador").scrollIntoView({
+    behavior: "smooth"
+  });
+  placaInput.focus();
+}
+
+formulario.addEventListener("submit", function(evento) {
+  evento.preventDefault();
+
+  // Normalizar la placa: quitar espacios y guiones.
+  const placa = placaInput.value
+    .trim()
+    .toUpperCase()
+    .replace(/[\s-]+/g, "");
+
+  // Validación de formato para la demostración.
+  if (!/^[A-Z0-9]{5,8}$/.test(placa)) {
+    alert(
+      "Revisa la placa. Para esta demostración, " +
+      "ingresa entre 5 y 8 letras o números."
+    );
+    placaInput.focus();
+    return;
+  }
+
+  // Actualizar la ficha con la placa consultada.
+  document.getElementById("placaResultado").textContent = placa;
+  document.getElementById("datoPlaca").textContent = placa;
+
+  // Indicar siempre que los datos aún no están verificados.
+  document.getElementById("estadoConsulta").textContent =
+    "DEMOSTRACIÓN · SIN VERIFICAR";
+
+  resultado.style.display = "block";
+
+  resultado.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+});
+
+function nuevaConsulta() {
+  placaInput.value = "";
+  resultado.style.display = "none";
+  irABusqueda();
+}
+
+placaInput.addEventListener("input", function() {
+  this.value = this.value.toUpperCase();
+});
+</script>
+</body>
+</html>
