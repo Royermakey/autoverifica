@@ -683,23 +683,31 @@ footer {
       </div>
       <div class="dato">
         <span>Marca</span>
-        <strong class="pendiente">Por verificar</strong>
+        <strong class="pendiente" id="datoMarca">Por verificar</strong>
       </div>
       <div class="dato">
         <span>Modelo</span>
-        <strong class="pendiente">Por verificar</strong>
+        <strong class="pendiente" id="datoModelo">Por verificar</strong>
       </div>
       <div class="dato">
         <span>Año de fabricación</span>
-        <strong class="pendiente">Por verificar</strong>
+        <strong class="pendiente" id="datoAnio">Por verificar</strong>
       </div>
       <div class="dato">
         <span>Color</span>
-        <strong class="pendiente">Por verificar</strong>
+        <strong class="pendiente" id="datoColor">Por verificar</strong>
       </div>
       <div class="dato">
         <span>Número VIN</span>
-        <strong class="pendiente">Por verificar</strong>
+        <strong class="pendiente" id="datoVIN">No disponible en demo</strong>
+      </div>
+      <div class="dato">
+        <span>Número de motor</span>
+        <strong class="pendiente" id="datoMotor">Por verificar</strong>
+      </div>
+      <div class="dato">
+        <span>Sede registral</span>
+        <strong class="pendiente" id="datoSede">No verificada</strong>
       </div>
     </article>
 
@@ -710,16 +718,20 @@ footer {
         <strong class="pendiente">Demo</strong>
       </div>
       <div class="dato">
-        <span>Propietario registrado</span>
-        <strong class="pendiente">Sin consultar</strong>
+        <span>Propietario (demo)</span>
+        <strong class="pendiente" id="datoPropietario">Sin consultar</strong>
       </div>
       <div class="dato">
         <span>Transferencias</span>
         <strong class="pendiente">Sin consultar</strong>
       </div>
       <div class="dato">
-        <span>Inspección técnica</span>
-        <strong class="pendiente">Sin consultar</strong>
+        <span>Revisión técnica</span>
+        <strong class="pendiente" id="datoRevision">Sin consultar</strong>
+      </div>
+      <div class="dato">
+        <span>SOAT</span>
+        <strong class="pendiente" id="datoSoat">Sin consultar</strong>
       </div>
       <div class="dato">
         <span>Gravámenes y cargas</span>
@@ -831,9 +843,7 @@ formulario.addEventListener("submit", async function(evento) {
     .replace(/[\s-]+/g, "");
 
   if (!/^[A-Z0-9]{5,8}$/.test(placa)) {
-    alert(
-      "Revisa la placa. Ingresa entre 5 y 8 letras o números."
-    );
+    alert("Revisa la placa. Ingresa entre 5 y 8 letras o números.");
     placaInput.focus();
     return;
   }
@@ -842,39 +852,50 @@ formulario.addEventListener("submit", async function(evento) {
   document.getElementById("datoPlaca").textContent = placa;
 
   const estado = document.getElementById("estadoConsulta");
-
-  estado.textContent = "CONSULTANDO SERVIDOR...";
+  estado.textContent = "CONSULTANDO API DE DEMOSTRACIÓN...";
   resultado.style.display = "block";
 
   try {
-    const respuesta = await fetch("https://autoverifica-api.onrender.com/api/consultar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ placa: placa })
-    });
+    const respuesta = await fetch(
+      `https://autoverifica-api.onrender.com/api/vehiculo/${encodeURIComponent(placa)}`
+    );
 
     const datos = await respuesta.json();
 
-    if (!respuesta.ok) {
-      throw new Error(datos.mensaje || datos.error || "Error en la consulta");
+    if (!respuesta.ok || !datos.correcto || !datos.vehiculo) {
+      throw new Error(
+        datos.mensaje || "Esta placa no está incluida en los ejemplos de demostración."
+      );
     }
 
-    estado.textContent = datos.consultasReales
-      ? "CONSULTA REAL"
-      : "SERVIDOR CONECTADO · DATOS NO VERIFICADOS";
+    const vehiculo = datos.vehiculo;
 
+    // Información general. Todos estos datos son ficticios.
+    document.getElementById("datoMarca").textContent = vehiculo.marca || "No disponible en demo";
+    document.getElementById("datoModelo").textContent = vehiculo.modelo || "No disponible en demo";
+    document.getElementById("datoAnio").textContent = vehiculo.anio ?? "No disponible en demo";
+    document.getElementById("datoColor").textContent = vehiculo.color || "No disponible en demo";
+    document.getElementById("datoMotor").textContent = vehiculo.motor || "No disponible en demo";
+    document.getElementById("datoPropietario").textContent =
+      vehiculo.propietario || "No disponible en demo";
+    document.getElementById("datoSede").textContent =
+      vehiculo.sedeSunarp || "No disponible en demo";
+
+    // El backend de demostración no contiene un VIN.
+    document.getElementById("datoVIN").textContent = "No disponible en demo";
+
+    document.getElementById("datoSoat").textContent =
+      vehiculo.soat?.estado || "NO VERIFICADO";
+    document.getElementById("datoRevision").textContent =
+      vehiculo.revisionTecnica?.estado || "NO VERIFICADA";
+
+    estado.textContent = "DEMO · DATOS FICTICIOS · SIN VERIFICAR";
     console.log("Respuesta de AutoVerifica API:", datos);
 
   } catch (error) {
     console.error("Error de consulta:", error);
-
-    estado.textContent = "NO SE PUDO COMPLETAR LA CONSULTA";
-    alert(
-      "No se pudo consultar el servidor. " +
-      "Revisa la dirección de la API y vuelve a intentarlo."
-    );
+    estado.textContent = "NO DISPONIBLE EN LA DEMOSTRACIÓN";
+    alert(error.message || "No se pudo consultar la API. Inténtalo nuevamente.");
   }
 
   resultado.scrollIntoView({
